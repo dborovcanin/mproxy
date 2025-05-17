@@ -6,7 +6,7 @@ package session
 import (
 	"context"
 
-	"github.com/eclipse/paho.mqtt.golang/packets"
+	"github.com/eclipse/paho.golang/packets"
 )
 
 // Interceptor is an interface for mGate intercept hook.
@@ -15,5 +15,5 @@ type Interceptor interface {
 	// Packets can be modified before being sent to the broker or the client.
 	// If the interceptor returns a non-nil packet, the modified packet is sent.
 	// The error indicates unsuccessful interception and mGate is cancelling the packet.
-	Intercept(ctx context.Context, pkt packets.ControlPacket, dir Direction) (packets.ControlPacket, error)
+	Intercept(ctx context.Context, pkt *packets.ControlPacket, dir Direction) (*packets.ControlPacket, error)
 }

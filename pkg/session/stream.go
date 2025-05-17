@@ -11,7 +11,7 @@ import (
 	"io"
 	"net"
 
-	"github.com/eclipse/paho.mqtt.golang/packets"
+	"github.com/eclipse/paho.golang/packets"
 )
 
 type Direction int
@@ -73,14 +73,15 @@ func stream(ctx context.Context, dir Direction, r, w net.Conn, h Handler, preIc,
 				return
 			}
 		default:
-			if p, ok := pkt.(*packets.PublishPacket); ok {
-				topics := []string{p.TopicName}
+			if pkt.Type == packets.PUBLISH {
+				p := pkt.Content.(*packets.Publish)
+				topics := []string{p.Topic}
 				// The broker sends subscription messages to the client as Publish Packets.
 				// We need to check if the Publish packet sent by the broker is allowed to be received to by the client.
 				// Therefore, we are using handler.AuthSubscribe instead of handler.AuthPublish.
 				if err = h.AuthSubscribe(ctx, &topics); err != nil {
-					pkt = packets.NewControlPacket(packets.Disconnect).(*packets.DisconnectPacket)
-					if wErr := pkt.Write(w); wErr != nil {
+					pkt = packets.NewControlPacket(packets.DISCONNECT)
+					if _, wErr := pkt.WriteTo(w); wErr != nil {
 						err = errors.Join(err, wErr)
 					}
 					errs <- wrap(ctx, err, dir)
@@ -98,7 +99,7 @@ func stream(ctx context.Context, dir Direction, r, w net.Conn, h Handler, preIc,
 		}
 
 		// Send to another.
-		if err := pkt.Write(w); err != nil {
+		if _, err := pkt.WriteTo(w); err != nil {
 			errs <- wrap(ctx, err, dir)
 			return
 		}
@@ -112,12 +113,12 @@ func stream(ctx context.Context, dir Direction, r, w net.Conn, h Handler, preIc,
 	}
 }
 
-func authorize(ctx context.Context, pkt packets.ControlPacket, h Handler) error {
-	switch p := pkt.(type) {
-	case *packets.ConnectPacket:
+func authorize(ctx context.Context, pkt *packets.ControlPacket, h Handler) error {
+	switch p := pkt.Content.(type) {
+	case *packets.Connect:
 		s, ok := FromContext(ctx)
 		if ok {
-			s.ID = p.ClientIdentifier
+			s.ID = p.ClientID
 			s.Username = p.Username
 			s.Password = p.Password
 		}
@@ -128,28 +129,36 @@ func authorize(ctx context.Context, pkt packets.ControlPacket, h Handler) error 
 		}
 		// Copy back to the packet in case values are changed by Event handler.
 		// This is specific to CONN, as only that package type has credentials.
-		p.ClientIdentifier = s.ID
+		p.ClientID = s.ID
 		p.Username = s.Username
 		p.Password = s.Password
 		return nil
-	case *packets.PublishPacket:
-		return h.AuthPublish(ctx, &p.TopicName, &p.Payload)
-	case *packets.SubscribePacket:
-		return h.AuthSubscribe(ctx, &p.Topics)
+	case *packets.Publish:
+		return h.AuthPublish(ctx, &p.Topic, &p.Payload)
+	case *packets.Subscribe:
+		topics := []string{}
+		for _, opt := range p.Subscriptions {
+			topics = append(topics, opt.Topic)
+		}
+		return h.AuthSubscribe(ctx, &topics)
 	default:
 		return nil
 	}
 }
 
-func notify(ctx context.Context, pkt packets.ControlPacket, h Handler) error {
-	switch p := pkt.(type) {
-	case *packets.ConnectPacket:
+func notify(ctx context.Context, pkt *packets.ControlPacket, h Handler) error {
+	switch p := pkt.Content.(type) {
+	case *packets.Connect:
 		return h.Connect(ctx)
-	case *packets.PublishPacket:
-		return h.Publish(ctx, &p.TopicName, &p.Payload)
-	case *packets.SubscribePacket:
-		return h.Subscribe(ctx, &p.Topics)
-	case *packets.UnsubscribePacket:
+	case *packets.Publish:
+		return h.Publish(ctx, &p.Topic, &p.Payload)
+	case *packets.Subscribe:
+		topics := []string{}
+		for _, opt := range p.Subscriptions {
+			topics = append(topics, opt.Topic)
+		}
+		return h.Subscribe(ctx, &topics)
+	case *packets.Unsubscribe:
 		return h.Unsubscribe(ctx, &p.Topics)
 	default:
 		return nil
