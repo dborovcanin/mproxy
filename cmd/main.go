@@ -13,9 +13,7 @@ import (
 
 	"github.com/absmach/mgate"
 	"github.com/absmach/mgate/examples/simple"
-	"github.com/absmach/mgate/pkg/http"
 	"github.com/absmach/mgate/pkg/mqtt"
-	"github.com/absmach/mgate/pkg/mqtt/websocket"
 	"github.com/absmach/mgate/pkg/session"
 	"github.com/caarlos0/env/v11"
 	"github.com/joho/godotenv"
@@ -67,110 +65,110 @@ func main() {
 		return mqttProxy.Listen(ctx)
 	})
 
-	// mGate server Configuration for MQTT with TLS
-	mqttTLSConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWithTLS})
-	if err != nil {
-		panic(err)
-	}
+	// // mGate server Configuration for MQTT with TLS
+	// mqttTLSConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWithTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// mGate server for MQTT with TLS
-	mqttTLSProxy := mqtt.New(mqttTLSConfig, handler, beforeHandler, afterHandler, logger)
-	g.Go(func() error {
-		return mqttTLSProxy.Listen(ctx)
-	})
+	// // mGate server for MQTT with TLS
+	// mqttTLSProxy := mqtt.New(mqttTLSConfig, handler, beforeHandler, afterHandler, logger)
+	// g.Go(func() error {
+	// 	return mqttTLSProxy.Listen(ctx)
+	// })
 
-	//  mGate server Configuration for MQTT with mTLS
-	mqttMTLSConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWithmTLS})
-	if err != nil {
-		panic(err)
-	}
+	// //  mGate server Configuration for MQTT with mTLS
+	// mqttMTLSConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWithmTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// mGate server for MQTT with mTLS
-	mqttMTlsProxy := mqtt.New(mqttMTLSConfig, handler, beforeHandler, afterHandler, logger)
-	g.Go(func() error {
-		return mqttMTlsProxy.Listen(ctx)
-	})
+	// // mGate server for MQTT with mTLS
+	// mqttMTlsProxy := mqtt.New(mqttMTLSConfig, handler, beforeHandler, afterHandler, logger)
+	// g.Go(func() error {
+	// 	return mqttMTlsProxy.Listen(ctx)
+	// })
 
-	// mGate server Configuration for MQTT over Websocket without TLS
-	wsConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWSWithoutTLS})
-	if err != nil {
-		panic(err)
-	}
+	// // mGate server Configuration for MQTT over Websocket without TLS
+	// wsConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWSWithoutTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// mGate server for MQTT over Websocket without TLS
-	wsProxy := websocket.New(wsConfig, handler, beforeHandler, afterHandler, logger)
-	g.Go(func() error {
-		return wsProxy.Listen(ctx)
-	})
+	// // mGate server for MQTT over Websocket without TLS
+	// wsProxy := websocket.New(wsConfig, handler, beforeHandler, afterHandler, logger)
+	// g.Go(func() error {
+	// 	return wsProxy.Listen(ctx)
+	// })
 
-	// mGate server Configuration for MQTT over Websocket with TLS
-	wsTLSConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWSWithTLS})
-	if err != nil {
-		panic(err)
-	}
+	// // mGate server Configuration for MQTT over Websocket with TLS
+	// wsTLSConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWSWithTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// mGate server for MQTT over Websocket with TLS
-	wsTLSProxy := websocket.New(wsTLSConfig, handler, beforeHandler, afterHandler, logger)
-	g.Go(func() error {
-		return wsTLSProxy.Listen(ctx)
-	})
+	// // mGate server for MQTT over Websocket with TLS
+	// wsTLSProxy := websocket.New(wsTLSConfig, handler, beforeHandler, afterHandler, logger)
+	// g.Go(func() error {
+	// 	return wsTLSProxy.Listen(ctx)
+	// })
 
-	// mGate server Configuration for MQTT over Websocket with mTLS
-	wsMTLSConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWSWithmTLS})
-	if err != nil {
-		panic(err)
-	}
+	// // mGate server Configuration for MQTT over Websocket with mTLS
+	// wsMTLSConfig, err := mgate.NewConfig(env.Options{Prefix: mqttWSWithmTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// mGate server for MQTT over Websocket with mTLS
-	wsMTLSProxy := websocket.New(wsMTLSConfig, handler, beforeHandler, afterHandler, logger)
-	g.Go(func() error {
-		return wsMTLSProxy.Listen(ctx)
-	})
+	// // mGate server for MQTT over Websocket with mTLS
+	// wsMTLSProxy := websocket.New(wsMTLSConfig, handler, beforeHandler, afterHandler, logger)
+	// g.Go(func() error {
+	// 	return wsMTLSProxy.Listen(ctx)
+	// })
 
-	// mGate server Configuration for HTTP without TLS
-	httpConfig, err := mgate.NewConfig(env.Options{Prefix: httpWithoutTLS})
-	if err != nil {
-		panic(err)
-	}
+	// // mGate server Configuration for HTTP without TLS
+	// httpConfig, err := mgate.NewConfig(env.Options{Prefix: httpWithoutTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// mGate server for HTTP without TLS
-	httpProxy, err := http.NewProxy(httpConfig, handler, logger, []string{}, []string{})
-	if err != nil {
-		panic(err)
-	}
-	g.Go(func() error {
-		return httpProxy.Listen(ctx)
-	})
+	// // mGate server for HTTP without TLS
+	// httpProxy, err := http.NewProxy(httpConfig, handler, logger, []string{}, []string{})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// g.Go(func() error {
+	// 	return httpProxy.Listen(ctx)
+	// })
 
-	// mGate server Configuration for HTTP with TLS
-	httpTLSConfig, err := mgate.NewConfig(env.Options{Prefix: httpWithTLS})
-	if err != nil {
-		panic(err)
-	}
+	// // mGate server Configuration for HTTP with TLS
+	// httpTLSConfig, err := mgate.NewConfig(env.Options{Prefix: httpWithTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// mGate server for HTTP with TLS
-	httpTLSProxy, err := http.NewProxy(httpTLSConfig, handler, logger, []string{}, []string{})
-	if err != nil {
-		panic(err)
-	}
-	g.Go(func() error {
-		return httpTLSProxy.Listen(ctx)
-	})
+	// // mGate server for HTTP with TLS
+	// httpTLSProxy, err := http.NewProxy(httpTLSConfig, handler, logger, []string{}, []string{})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// g.Go(func() error {
+	// 	return httpTLSProxy.Listen(ctx)
+	// })
 
-	// mGate server Configuration for HTTP with mTLS
-	httpMTLSConfig, err := mgate.NewConfig(env.Options{Prefix: httpWithmTLS})
-	if err != nil {
-		panic(err)
-	}
+	// // mGate server Configuration for HTTP with mTLS
+	// httpMTLSConfig, err := mgate.NewConfig(env.Options{Prefix: httpWithmTLS})
+	// if err != nil {
+	// 	panic(err)
+	// }
 
-	// mGate server for HTTP with mTLS
-	httpMTLSProxy, err := http.NewProxy(httpMTLSConfig, handler, logger, []string{}, []string{})
-	if err != nil {
-		panic(err)
-	}
-	g.Go(func() error {
-		return httpMTLSProxy.Listen(ctx)
-	})
+	// // mGate server for HTTP with mTLS
+	// httpMTLSProxy, err := http.NewProxy(httpMTLSConfig, handler, logger, []string{}, []string{})
+	// if err != nil {
+	// 	panic(err)
+	// }
+	// g.Go(func() error {
+	// 	return httpMTLSProxy.Listen(ctx)
+	// })
 
 	g.Go(func() error {
 		return StopSignalHandler(ctx, cancel, logger)

@@ -12,11 +12,11 @@ import (
 
 type Config struct {
 	Host           string `env:"HOST"            envDefault:""`
-	Port           string `env:"PORT,required"            envDefault:""`
+	Port           string `env:"PORT,required"            envDefault:"1884"`
 	PathPrefix     string `env:"PATH_PREFIX"              envDefault:""`
-	TargetHost     string `env:"TARGET_HOST,required"     envDefault:""`
-	TargetPort     string `env:"TARGET_PORT,required"     envDefault:""`
-	TargetProtocol string `env:"TARGET_PROTOCOL,required" envDefault:""`
+	TargetHost     string `env:"TARGET_HOST,required"     envDefault:"localhost"`
+	TargetPort     string `env:"TARGET_PORT,required"     envDefault:"1883"`
+	TargetProtocol string `env:"TARGET_PROTOCOL,required" envDefault:"MQTT"`
 	TargetPath     string `env:"TARGET_PATH"              envDefault:""`
 	TLSConfig      *tls.Config
 }

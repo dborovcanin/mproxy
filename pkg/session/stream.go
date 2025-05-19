@@ -11,7 +11,7 @@ import (
 	"io"
 	"net"
 
-	"github.com/eclipse/paho.mqtt.golang/packets"
+	"github.com/dborovcanin/mqtt/packets"
 )
 
 type Direction int
@@ -52,19 +52,19 @@ func Stream(ctx context.Context, in, out net.Conn, h Handler, preIc, postIc Inte
 func stream(ctx context.Context, dir Direction, r, w net.Conn, h Handler, preIc, postIc Interceptor, errs chan error) {
 	for {
 		// Read from one connection.
-		pkt, err := packets.ReadPacket(r)
+		pkt, err := packets.ReadPacket(r, packets.V311)
 		if err != nil {
 			errs <- wrap(ctx, err, dir)
 			return
 		}
 
-		if preIc != nil {
-			pkt, err = preIc.Intercept(ctx, pkt, dir)
-			if err != nil {
-				errs <- wrap(ctx, err, dir)
-				return
-			}
-		}
+		// if preIc != nil {
+		// 	pkt, err = preIc.Intercept(ctx, pkt, dir)
+		// 	if err != nil {
+		// 		errs <- wrap(ctx, err, dir)
+		// 		return
+		// 	}
+		// }
 
 		switch dir {
 		case Up:
@@ -73,14 +73,14 @@ func stream(ctx context.Context, dir Direction, r, w net.Conn, h Handler, preIc,
 				return
 			}
 		default:
-			if p, ok := pkt.(*packets.PublishPacket); ok {
+			if p, ok := pkt.(*packets.Publish); ok {
 				topics := []string{p.TopicName}
 				// The broker sends subscription messages to the client as Publish Packets.
 				// We need to check if the Publish packet sent by the broker is allowed to be received to by the client.
 				// Therefore, we are using handler.AuthSubscribe instead of handler.AuthPublish.
 				if err = h.AuthSubscribe(ctx, &topics); err != nil {
-					pkt = packets.NewControlPacket(packets.Disconnect).(*packets.DisconnectPacket)
-					if wErr := pkt.Write(w); wErr != nil {
+					pkt = packets.NewControlPacket(packets.DisconnectType)
+					if wErr := pkt.Pack(w); wErr != nil {
 						err = errors.Join(err, wErr)
 					}
 					errs <- wrap(ctx, err, dir)
@@ -89,16 +89,16 @@ func stream(ctx context.Context, dir Direction, r, w net.Conn, h Handler, preIc,
 			}
 		}
 
-		if postIc != nil {
-			pkt, err = postIc.Intercept(ctx, pkt, dir)
-			if err != nil {
-				errs <- wrap(ctx, err, dir)
-				return
-			}
-		}
+		// if postIc != nil {
+		// 	pkt, err = postIc.Intercept(ctx, pkt, dir)
+		// 	if err != nil {
+		// 		errs <- wrap(ctx, err, dir)
+		// 		return
+		// 	}
+		// }
 
 		// Send to another.
-		if err := pkt.Write(w); err != nil {
+		if err := pkt.Pack(w); err != nil {
 			errs <- wrap(ctx, err, dir)
 			return
 		}
@@ -114,10 +114,10 @@ func stream(ctx context.Context, dir Direction, r, w net.Conn, h Handler, preIc,
 
 func authorize(ctx context.Context, pkt packets.ControlPacket, h Handler) error {
 	switch p := pkt.(type) {
-	case *packets.ConnectPacket:
+	case *packets.Connect:
 		s, ok := FromContext(ctx)
 		if ok {
-			s.ID = p.ClientIdentifier
+			s.ID = p.ClientID
 			s.Username = p.Username
 			s.Password = p.Password
 		}
@@ -128,14 +128,18 @@ func authorize(ctx context.Context, pkt packets.ControlPacket, h Handler) error 
 		}
 		// Copy back to the packet in case values are changed by Event handler.
 		// This is specific to CONN, as only that package type has credentials.
-		p.ClientIdentifier = s.ID
+		p.ClientID = s.ID
 		p.Username = s.Username
 		p.Password = s.Password
 		return nil
-	case *packets.PublishPacket:
+	case *packets.Publish:
 		return h.AuthPublish(ctx, &p.TopicName, &p.Payload)
-	case *packets.SubscribePacket:
-		return h.AuthSubscribe(ctx, &p.Topics)
+	case *packets.Subscribe:
+		topics := []string{}
+		for _, opt := range p.Opts {
+			topics = append(topics, opt.Topic)
+		}
+		return h.AuthSubscribe(ctx, &topics)
 	default:
 		return nil
 	}
@@ -143,13 +147,17 @@ func authorize(ctx context.Context, pkt packets.ControlPacket, h Handler) error 
 
 func notify(ctx context.Context, pkt packets.ControlPacket, h Handler) error {
 	switch p := pkt.(type) {
-	case *packets.ConnectPacket:
+	case *packets.Connect:
 		return h.Connect(ctx)
-	case *packets.PublishPacket:
+	case *packets.Publish:
 		return h.Publish(ctx, &p.TopicName, &p.Payload)
-	case *packets.SubscribePacket:
-		return h.Subscribe(ctx, &p.Topics)
-	case *packets.UnsubscribePacket:
+	case *packets.Subscribe:
+		topics := []string{}
+		for _, opt := range p.Opts {
+			topics = append(topics, opt.Topic)
+		}
+		return h.Subscribe(ctx, &topics)
+	case *packets.Unsubscribe:
 		return h.Unsubscribe(ctx, &p.Topics)
 	default:
 		return nil
