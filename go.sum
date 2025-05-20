@@ -2,6 +2,10 @@ github.com/caarlos0/env/v11 v11.3.1 h1:cArPWC15hWmEt+gWk7YBi7lEXTXCvpaSdCiZE2X5m
 github.com/caarlos0/env/v11 v11.3.1/go.mod h1:qupehSf/Y0TUTsxKywqRt/vJjN5nz6vauiYEUUr8P4U=
 github.com/dborovcanin/mqtt v0.0.0-20250519085524-5459dba28333 h1:uCWIT9HsLZUQuanJuKFMNFWkg4BY7ajcvMXP1REc3mQ=
 github.com/dborovcanin/mqtt v0.0.0-20250519085524-5459dba28333/go.mod h1:GgIb33lspvtDNFCe6l0CWtk0dpDd824RFAb0IyBhOyw=
+github.com/dborovcanin/mqtt v0.0.0-20250519095238-c6658f24cae3 h1:NOcDkQay9g0nt+8XpGI28UhvRVwAzkbGK2362mRzCsA=
+github.com/dborovcanin/mqtt v0.0.0-20250519095238-c6658f24cae3/go.mod h1:GgIb33lspvtDNFCe6l0CWtk0dpDd824RFAb0IyBhOyw=
+github.com/dborovcanin/mqtt v0.0.0-20250520174047-3c4c6d74b679 h1:Ot4rtMIha/MSXxlyXuk7ZGrT+ANJ56RxxykWX8I9fo4=
+github.com/dborovcanin/mqtt v0.0.0-20250520174047-3c4c6d74b679/go.mod h1:GgIb33lspvtDNFCe6l0CWtk0dpDd824RFAb0IyBhOyw=
 github.com/eclipse/paho.mqtt.golang v1.5.0 h1:EH+bUVJNgttidWFkLLVKaQPGmkTUfQQqjOsyvMGvD6o=
 github.com/eclipse/paho.mqtt.golang v1.5.0/go.mod h1:du/2qNQVqJf/Sqs4MEL77kR8QTqANF7XU7Fk0aOTAgk=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
